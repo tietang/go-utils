@@ -191,7 +191,7 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
         keys = append(keys, k)
     }
     _, file, line, _ := runtime.Caller(5)
-    entry.Message = path.Base(file) + "[" + strconv.Itoa(line) + "]  " + entry.Message
+    entry.Message = "[" + path.Base(file) +":"+ strconv.Itoa(line) + "]  " + entry.Message
 
     if !f.DisableSorting {
         sort.Strings(keys)
