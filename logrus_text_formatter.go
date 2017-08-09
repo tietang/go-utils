@@ -12,9 +12,9 @@ import (
 
     "bytes"
     "runtime"
-    "path"
     //"strconv"
     "strconv"
+    "path"
 )
 
 //formatter := &log.TextFormatter{}
@@ -99,6 +99,7 @@ type compiledColorScheme struct {
 }
 
 type TextFormatter struct {
+    EnableLogFuncName bool
     // Set to true to bypass checking for a TTY before outputting colors.
     ForceColors bool
 
@@ -190,9 +191,15 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
     for k := range entry.Data {
         keys = append(keys, k)
     }
-    _, file, line, _ := runtime.Caller(5)
-    entry.Message = path.Base(file) + "[" + strconv.Itoa(line) + "]  " + entry.Message
 
+    pc, file, line, _ := runtime.Caller(5)
+
+    if f.EnableLogFuncName {
+        fun := runtime.FuncForPC(pc)
+        entry.Message = "[(" + path.Base(file) + ":" + strconv.Itoa(line) + ") " + fun.Name() + "]  " + entry.Message
+    } else {
+        entry.Message = "[" + path.Base(file) + ":" + strconv.Itoa(line) + "]  " + entry.Message
+    }
     if !f.DisableSorting {
         sort.Strings(keys)
     }
