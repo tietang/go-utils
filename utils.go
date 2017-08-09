@@ -3,13 +3,10 @@ package utils
 import (
 	"errors"
 	"net"
-	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
 )
 
-func PanicError(err error) {
+func Panic(err error) {
 	if err != nil {
 		panic(err)
 	}
@@ -77,8 +74,3 @@ func GetExternalIP() (string, error) {
 	return "", errors.New("are you connected to the network?")
 }
 
-func GetRunningDir() string {
-	file, _ := exec.LookPath(os.Args[0])
-	runningDir, _ := filepath.Abs(filepath.Dir(file))
-	return runningDir
-}

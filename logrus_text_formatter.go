@@ -191,8 +191,8 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
     for k := range entry.Data {
         keys = append(keys, k)
     }
-
     pc, file, line, _ := runtime.Caller(5)
+
 
     if f.EnableLogFuncName {
         fun := runtime.FuncForPC(pc)
