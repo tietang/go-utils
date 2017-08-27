@@ -16,6 +16,9 @@ import (
     "strconv"
     "path"
 )
+const(
+    DefaultTimestampFormat = "2006-01-02.15:04:05.999999"
+)
 
 //formatter := &log.TextFormatter{}
 //formatter.ForceColors = true
@@ -177,7 +180,7 @@ func (f *TextFormatter) init(entry *logrus.Entry) {
         f.QuoteCharacter = "\""
     }
     if entry.Logger != nil {
-        f.isTerminal = logrus.IsTerminal(entry.Logger.Out)
+        //f.isTerminal = logrus.IsTerminal(entry.Logger.Out)
     }
 }
 
@@ -217,7 +220,7 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 
     timestampFormat := f.TimestampFormat
     if timestampFormat == "" {
-        timestampFormat = logrus.DefaultTimestampFormat
+        timestampFormat = DefaultTimestampFormat
     }
     if isFormatted {
         isColored := (f.ForceColors || f.isTerminal) && !f.DisableColors
