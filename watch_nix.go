@@ -1,7 +1,4 @@
-
-
 // +build darwin linux
-
 
 package utils
 
@@ -11,6 +8,7 @@ import (
     //"syscall"
     "syscall"
 )
+
 //
 func Notify(callback func()) {
     //热更新配置可能有多种触发方式，这里使用系统信号量sigusr1实现
