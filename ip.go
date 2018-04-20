@@ -35,6 +35,10 @@ var defaultExcludeFilters []string
 func init() {
     defaultExcludeFilters = []string{"utun", "bridge", "docker", "vm", "veth", "br-", "vmnet"}
 }
+func GetExternalIP() (string, error) {
+    ips, error := GetExternalIPs()
+    return ips[0], error
+}
 
 func GetExternalIPs(excludeFilters ... string) ([]string, error) {
     filters := append(defaultExcludeFilters, excludeFilters...)
