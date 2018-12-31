@@ -16,7 +16,7 @@ type LineNumLogrusHook struct {
     Skip              int
 }
 
-func NewLogLineNumHook() *LineNumLogrusHook {
+func NewLineNumLogrusHook() *LineNumLogrusHook {
     return &LineNumLogrusHook{
         EnableFileNameLog: true,
         EnableFuncNameLog: true,
