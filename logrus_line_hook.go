@@ -8,6 +8,11 @@ import (
 )
 
 //logrus 代码日志文件，函数和代码行位置输出hook
+//用法：
+//lfh := NewLogLineNumHook()
+//lfh.EnableFileLogLine = true
+//lfh.EnableLogFuncName = true
+//log.AddHook(lfh)
 type LineNumLogrusHook struct {
     //启用文件名称log
     EnableFileNameLog bool
