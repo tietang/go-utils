@@ -7,18 +7,21 @@ import (
     "strings"
 )
 
-func NewLogLineNumHook() *LogLineNumHook {
-    return &LogLineNumHook{
-        EnableFileLogLine: true,
-        EnableLogFuncName: true,
-        Skip:              5,
-    }
+//logrus 代码日志文件，函数和代码行位置输出hook
+type LogLineNumHook struct {
+    //启用文件名称log
+    EnableFileNameLog bool
+    //启用函数名称log
+    EnableFuncNameLog bool
+    Skip              int
 }
 
-type LogLineNumHook struct {
-    EnableFileLogLine bool
-    EnableLogFuncName bool
-    Skip              int
+func NewLogLineNumHook() *LogLineNumHook {
+    return &LogLineNumHook{
+        EnableFileNameLog: true,
+        EnableFuncNameLog: true,
+        Skip:              5,
+    }
 }
 
 func (hooks LogLineNumHook) Levels() []log.Level {
@@ -29,15 +32,15 @@ func (hook *LogLineNumHook) Fire(entry *log.Entry) error {
 
     file, function, line := hook.findCaller(hook.Skip)
 
-    if hook.EnableFileLogLine && hook.EnableLogFuncName {
+    if hook.EnableFileNameLog && hook.EnableFuncNameLog {
         entry.Message = fmt.Sprintf("[%s(%s:%d)] [%s]", function, file, line, entry.Message)
     }
     //router/route_table.go(43)
-    if hook.EnableFileLogLine && !hook.EnableLogFuncName {
+    if hook.EnableFileNameLog && !hook.EnableFuncNameLog {
         entry.Message = fmt.Sprintf("[%s(%d)] %s", file, line, entry.Message)
     }
     //microservice-gateway/v1/router.(*RouteTable).AddRoutePattern(43)
-    if !hook.EnableFileLogLine && hook.EnableLogFuncName {
+    if !hook.EnableFileNameLog && hook.EnableFuncNameLog {
         entry.Message = fmt.Sprintf("[%s(%d)] %s", function, line, entry.Message)
     }
 
@@ -57,7 +60,7 @@ func (hook *LogLineNumHook) findCaller(skip int) (string, string, int) {
             break
         }
     }
-    if pc != 0 && hook.EnableLogFuncName {
+    if pc != 0 && hook.EnableFuncNameLog {
         frames := runtime.CallersFrames([]uintptr{pc})
         frame, _ := frames.Next()
         function = frame.Function
