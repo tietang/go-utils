@@ -8,7 +8,7 @@ import (
 )
 
 //logrus 代码日志文件，函数和代码行位置输出hook
-type LogLineNumHook struct {
+type LineNumLogrusHook struct {
     //启用文件名称log
     EnableFileNameLog bool
     //启用函数名称log
@@ -16,19 +16,19 @@ type LogLineNumHook struct {
     Skip              int
 }
 
-func NewLogLineNumHook() *LogLineNumHook {
-    return &LogLineNumHook{
+func NewLogLineNumHook() *LineNumLogrusHook {
+    return &LineNumLogrusHook{
         EnableFileNameLog: true,
         EnableFuncNameLog: true,
         Skip:              5,
     }
 }
 
-func (hooks LogLineNumHook) Levels() []log.Level {
+func (hooks LineNumLogrusHook) Levels() []log.Level {
     return log.AllLevels
 }
 
-func (hook *LogLineNumHook) Fire(entry *log.Entry) error {
+func (hook *LineNumLogrusHook) Fire(entry *log.Entry) error {
 
     file, function, line := hook.findCaller(hook.Skip)
 
@@ -47,7 +47,7 @@ func (hook *LogLineNumHook) Fire(entry *log.Entry) error {
     return nil
 }
 
-func (hook *LogLineNumHook) findCaller(skip int) (string, string, int) {
+func (hook *LineNumLogrusHook) findCaller(skip int) (string, string, int) {
     var (
         pc       uintptr
         file     string
@@ -69,7 +69,7 @@ func (hook *LogLineNumHook) findCaller(skip int) (string, string, int) {
     return file, function, line
 }
 
-func (hook *LogLineNumHook) getCaller(skip int) (uintptr, string, int) {
+func (hook *LineNumLogrusHook) getCaller(skip int) (uintptr, string, int) {
     pc, file, line, ok := runtime.Caller(skip)
     if !ok {
         return 0, "", 0
