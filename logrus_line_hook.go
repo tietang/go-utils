@@ -34,17 +34,17 @@ func (hooks LineNumLogrusHook) Levels() []log.Level {
 }
 
 func (hook *LineNumLogrusHook) Fire(entry *log.Entry) error {
-
+    if !hook.EnableFileNameLog && !hook.EnableFuncNameLog {
+        return nil
+    }
     file, function, line := hook.findCaller(hook.Skip)
 
     if hook.EnableFileNameLog && hook.EnableFuncNameLog {
         entry.Message = fmt.Sprintf("[%s(%s:%d)] [%s]", function, file, line, entry.Message)
     }
-    //router/route_table.go(43)
     if hook.EnableFileNameLog && !hook.EnableFuncNameLog {
         entry.Message = fmt.Sprintf("[%s(%d)] %s", file, line, entry.Message)
     }
-    //microservice-gateway/v1/router.(*RouteTable).AddRoutePattern(43)
     if !hook.EnableFileNameLog && hook.EnableFuncNameLog {
         entry.Message = fmt.Sprintf("[%s(%d)] %s", function, line, entry.Message)
     }
