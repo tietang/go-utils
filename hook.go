@@ -8,19 +8,19 @@ import (
 	// or "runtime"
 )
 
-type signalFunc func(s os.Signal, arg interface{})
+type SignalFunc func(s os.Signal, arg interface{})
 
 type Hook struct {
-	m map[os.Signal]signalFunc
+	m map[os.Signal]SignalFunc
 }
 
 func NewHook() *Hook {
 	ss := new(Hook)
-	ss.m = make(map[os.Signal]signalFunc)
+	ss.m = make(map[os.Signal]SignalFunc)
 	return ss
 }
 
-func (set *Hook) Register(s os.Signal, handler signalFunc) {
+func (set *Hook) Register(s os.Signal, handler SignalFunc) {
 	if _, found := set.m[s]; !found {
 		set.m[s] = handler
 	}
