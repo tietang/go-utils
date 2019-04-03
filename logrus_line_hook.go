@@ -27,7 +27,8 @@ func NewLineNumLogrusHook() *LineNumLogrusHook {
 	return &LineNumLogrusHook{
 		EnableFileNameLog: true,
 		EnableFuncNameLog: true,
-		Skip:              5,
+		Skip:              8,
+		SkipPrefixs:       []string{"logrus@", "/logrus"},
 	}
 }
 
@@ -61,22 +62,31 @@ func (hook *LineNumLogrusHook) findCaller(skip int) (string, string, int) {
 		function string
 		line     int
 	)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 13; i++ {
 		pc, file, line = hook.getCaller(skip + i)
-		if !strings.HasPrefix(file, "logrus/") {
-			break
-		}
+
+		//if !(strings.HasPrefix(file, "/logrus") || strings.HasPrefix(file, "logrus@")) {
+		//	break
+		//}
+		isContains := false
 		for _, v := range hook.SkipPrefixs {
-			if !strings.HasPrefix(file, v) {
-				break
+			if strings.Contains(file, v) {
+				//break
+				isContains = true
 			}
 		}
-
+		if !isContains {
+			break
+		}
 	}
 	if pc != 0 && hook.EnableFuncNameLog {
 		frames := runtime.CallersFrames([]uintptr{pc})
 		frame, _ := frames.Next()
 		function = frame.Function
+		//funcName := runtime.FuncForPC(pc).Name()
+		//file = path.Base(file)
+		//function = path.Base(funcName)
+		//line = line
 	}
 
 	return file, function, line
