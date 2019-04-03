@@ -3,8 +3,7 @@ package utils
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"runtime"
-	"strings"
+	"path"
 )
 
 //logrus 代码日志文件，函数和代码行位置输出hook
@@ -18,17 +17,12 @@ type LineNumLogrusHook struct {
 	EnableFileNameLog bool
 	//启用函数名称log
 	EnableFuncNameLog bool
-	SkipPrefixs       []string
-
-	Skip int
 }
 
 func NewLineNumLogrusHook() *LineNumLogrusHook {
 	return &LineNumLogrusHook{
 		EnableFileNameLog: true,
 		EnableFuncNameLog: true,
-		Skip:              8,
-		SkipPrefixs:       []string{"logrus@", "/logrus"},
 	}
 }
 
@@ -38,10 +32,21 @@ func (hooks LineNumLogrusHook) Levels() []log.Level {
 
 func (hook *LineNumLogrusHook) Fire(entry *log.Entry) error {
 
-	file, function, line := hook.findCaller(hook.Skip)
+	var (
+		file, function string
+		line           int
+	)
+	if entry.HasCaller() {
+		frame := entry.Caller
+		line = frame.Line
+		function = frame.Function
+		dir, filename := path.Split(frame.File)
+		f := path.Base(dir)
+		file = fmt.Sprintf("%s/%s", f, filename)
+	}
 
 	if hook.EnableFileNameLog && hook.EnableFuncNameLog {
-		entry.Message = fmt.Sprintf("[%s(%s:%d)] [%s]", function, file, line, entry.Message)
+		entry.Message = fmt.Sprintf("[%s(%s:%d)] %s", function, file, line, entry.Message)
 	}
 	//router/route_table.go(43)
 	if hook.EnableFileNameLog && !hook.EnableFuncNameLog {
@@ -53,61 +58,4 @@ func (hook *LineNumLogrusHook) Fire(entry *log.Entry) error {
 	}
 
 	return nil
-}
-
-func (hook *LineNumLogrusHook) findCaller(skip int) (string, string, int) {
-	var (
-		pc       uintptr
-		file     string
-		function string
-		line     int
-	)
-	for i := 0; i < 13; i++ {
-		pc, file, line = hook.getCaller(skip + i)
-
-		//if !(strings.HasPrefix(file, "/logrus") || strings.HasPrefix(file, "logrus@")) {
-		//	break
-		//}
-		isContains := false
-		for _, v := range hook.SkipPrefixs {
-			if strings.Contains(file, v) {
-				//break
-				isContains = true
-			}
-		}
-		if !isContains {
-			break
-		}
-	}
-	if pc != 0 && hook.EnableFuncNameLog {
-		frames := runtime.CallersFrames([]uintptr{pc})
-		frame, _ := frames.Next()
-		function = frame.Function
-		//funcName := runtime.FuncForPC(pc).Name()
-		//file = path.Base(file)
-		//function = path.Base(funcName)
-		//line = line
-	}
-
-	return file, function, line
-}
-
-func (hook *LineNumLogrusHook) getCaller(skip int) (uintptr, string, int) {
-	pc, file, line, ok := runtime.Caller(skip)
-	if !ok {
-		return 0, "", 0
-	}
-
-	n := 0
-	for i := len(file) - 1; i > 0; i-- {
-		if file[i] == '/' {
-			n += 1
-			if n >= 2 {
-				file = file[i+1:]
-				break
-			}
-		}
-	}
-
-	return pc, file, line
 }
