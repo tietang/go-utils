@@ -32,29 +32,28 @@ func (hooks LineNumLogrusHook) Levels() []log.Level {
 
 func (hook *LineNumLogrusHook) Fire(entry *log.Entry) error {
 
-	var (
-		file, function string
-		line           int
-	)
 	if entry.HasCaller() {
+		var (
+			file, function string
+			line           int
+		)
 		frame := entry.Caller
 		line = frame.Line
 		function = frame.Function
 		dir, filename := path.Split(frame.File)
 		f := path.Base(dir)
 		file = fmt.Sprintf("%s/%s", f, filename)
-	}
-
-	if hook.EnableFileNameLog && hook.EnableFuncNameLog {
-		entry.Message = fmt.Sprintf("[%s(%s:%d)] %s", function, file, line, entry.Message)
-	}
-	//router/route_table.go(43)
-	if hook.EnableFileNameLog && !hook.EnableFuncNameLog {
-		entry.Message = fmt.Sprintf("[%s(%d)] %s", file, line, entry.Message)
-	}
-	//microservice-gateway/v1/router.(*RouteTable).AddRoutePattern(43)
-	if !hook.EnableFileNameLog && hook.EnableFuncNameLog {
-		entry.Message = fmt.Sprintf("[%s(%d)] %s", function, line, entry.Message)
+		if hook.EnableFileNameLog && hook.EnableFuncNameLog {
+			entry.Message = fmt.Sprintf("[%s(%s:%d)] %s", function, file, line, entry.Message)
+		}
+		//router/route_table.go(43)
+		if hook.EnableFileNameLog && !hook.EnableFuncNameLog {
+			entry.Message = fmt.Sprintf("[%s(%d)] %s", file, line, entry.Message)
+		}
+		//microservice-gateway/v1/router.(*RouteTable).AddRoutePattern(43)
+		if !hook.EnableFileNameLog && hook.EnableFuncNameLog {
+			entry.Message = fmt.Sprintf("[%s(%d)] %s", function, line, entry.Message)
+		}
 	}
 
 	return nil
